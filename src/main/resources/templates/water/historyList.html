@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> 送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+
+    <!--批量删除-->
+    <script>
+        $(function () {
+            $("#selectAll").click(function () {
+                $("input[name=chkHistory]").prop("checked",$(this).prop("checked"));
+            })
+
+            $("#batchDelete").click(function () {
+                let chList = $("input[name=chkHistory]:checked");
+                if (chList.length == 0){
+                    alert("请至少选择一项");
+                    return;
+                }
+                let ids = "";
+                $(chList).each(function () {
+                    let id = $(this).val();
+                    ids += ","+id;
+                })
+                $.ajax({
+                    url:'/history/batchDeleteHistory',
+                    data:{
+                        idList:ids
+                    },
+                    method:'POST',
+                    success:function (data) {
+                        if (data == "OK"){
+                            alert("批量删除成功");
+                            window.location.href ="/history/listHis";
+                        }else {
+                            alert("批量删除失败");
+                        }
+                    }
+                })
+
+            })
+        })
+    </script>
+
+
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar
+    客户列表页面使用th:replace属性替换成主菜单的侧边栏，让代码能够复用
+    th:replace="waterMainMenu::sidebar"
+    waterMainMenu表示主菜单页面的文件名称
+    sidebar表示主菜单页面的片段名称
+    -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+        <!--
+th:replace="waterMainMenu::navbar"表示将nav标签里面所有的内容替换为主页面的navbar片段
+        -->
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar">
+
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="col-md-4" style="left: -1%">
+                        <!--                        点击“添加”按钮跳转到“添加送牛奶历史”页面-->
+                        <a class="btn btn-primary" href="/history/preSaveHis">添加信息</a>
+                        <a class="btn btn-danger" href="#" id="batchDelete">批量删除</a>
+                        <a class="btn btn-success" th:href="@{/jump}">回到首页</a>
+                    </div>
+                </div>
+
+                <div class="col-md-8" style="margin-left: 63.5%">
+                    <form class="form-inline" th:action="@{/history/listHis}" method="post">
+                        <div class="form-group">
+                            <label for="searchName">送牛奶工名称：</label>
+                            <input type="text" class="form-control" th:value="${workerName}" th:name="workerName" id="searchName" placeholder="请输入送牛奶工名称">
+                            <label for="searchName">送牛奶时间：</label>
+                            <input type="date" class="form-control" format="%Y年%m月%d日 %H:%M:%S" th:value="${sendWaterTime}" th:name="sendWaterTime" id="sendWaterTime" placeholder=" ">
+                        </div>
+                        <button type="submit" class="btn btn-primary">查询</button>
+                    </form>
+                </div>
+
+
+                <div class="col-md-12" style="margin-top: 15px">
+                    <table class="table table-bordered table-hover" border="1px">
+                        <thead>
+                        <tr class="success" style="text-align: center">
+                            <td>
+                                <input type="checkbox" name="selectAll" id="selectAll" /> 全选/全不选
+                            </td>
+                            <td>送牛奶历史编号</td>
+                            <td>送牛奶工名称</td>
+                            <td>送牛奶时间</td>
+                            <td>客户名称</td>
+                            <td>送牛奶数量</td>
+                            <td>操作</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="his : ${pageInfo.list}" style="text-align: center">
+                            <td>
+                                <input type="checkbox" th:value="${his.hid}" name="chkHistory"/>
+                            </td>
+                            <td th:text="${his.hid}"></td>
+                            <td th:text="${his.worker.workerName}"></td>
+                            <td th:text="${#dates.format(his.sendWaterTime,'yyyy-MM-dd')}"></td>
+                            <td th:text="${his.customer.custName}"></td>
+                            <td th:text="${his.sendWaterCount}"></td>
+                            <td>
+                                <a class="btn btn-success" th:href="@{'/history/preUpdateHis/'+${his.hid}}">修改</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!--显示分页信息部分代码-->
+        <div class="modal-footer no-margin-top">
+            <div class="col-md-6">
+                <strong>
+                    当前第<span style="color: red"> [[${pageInfo.pageNum}]]</span>页
+                    共 <span style="color: red">[[${pageInfo.pages}]] </span> 页
+                    一共<span style="color: red"> [[${pageInfo.total}]]</span> 条记录
+                </strong>
+            </div>
+            <ul class="pagination pull-right no-margin">
+
+                <!--hasPreviousPage 是否有前一页-->
+                <li th:if="${pageInfo.hasPreviousPage}">
+                    <a th:href="'/history/listHis?pageNum=1'">首页</a>
+                </li>
+
+                <li class="prev" th:if="${pageInfo.hasPreviousPage}">
+                    <!--prePage:前一页-->
+                    <a th:href="'/history/listHis?pageNum='+${pageInfo.prePage}">
+                        <i class="ace-icon fa fa-angle-double-left"></i>
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+
+                <!--遍历条数-->
+                <!--navigatepageNums：所有导航页号-->
+                <li th:each="nav:${pageInfo.navigatepageNums}">
+                    <a th:href="'/history/listHis?pageNum='+${nav}" th:text="${nav}" th:if="${nav != pageInfo.pageNum}"></a>
+                    <span style="font-weight: bold;background: #6faed9;" th:if="${nav == pageInfo.pageNum}" th:text="${nav}" ></span>
+                </li>
+
+                <!--hasNextPage：是否有下一页-->
+                <li class="next" th:if="${pageInfo.hasNextPage}">
+                    <a th:href="'/history/listHis?pageNum='+${pageInfo.nextPage}">
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="'/history/listHis?pageNum='+${pageInfo.pages}">尾页</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

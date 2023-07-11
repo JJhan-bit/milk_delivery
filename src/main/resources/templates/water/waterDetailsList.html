@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> 送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <style>
+        .myWorkerImage{
+            width:40px;
+            height:40px;
+        }
+        #add,#sub{
+            font-size:20px;
+            color:red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar
+    客户列表页面使用th:replace属性替换成主菜单的侧边栏，让代码能够复用
+    th:replace="waterMainMenu::sidebar"
+    waterMainMenu表示主菜单页面的文件名称
+    sidebar表示主菜单页面的片段名称
+    -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+        <!--
+th:replace="waterMainMenu::navbar"表示将nav标签里面所有的内容替换为主页面的navbar片段
+        -->
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar">
+
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <a class="btn btn-success" th:href="@{/jump}" style="margin-left: -65.7%">回到首页</a>
+
+                <div class="col-md-8" style="left: 77.5%">
+                    <form class="form-inline" th:action="@{/stat/statWaterDetails}">
+                        <!--
+                         th:value="${searchName}"  将后端回传的“客户名称”显示在搜索文本框的value属性中
+                         这个value属性值是动态的
+                        -->
+                        送牛奶工名称：<input type="text"  class="form-control" th:name="workerName" placeholder="请输入送牛奶工名称"/>
+                        <input type="submit" class="btn btn-primary" name="search" value="搜索"/>
+                    </form>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 15px">
+                    <table class="table table-bordered table-hover" border="1px">
+                        <thead>
+                        <tr class="success" style="text-align: center">
+                            <td>送牛奶工名称</td>
+                            <td>送牛奶工照片</td>
+                            <td>客户列表</td>
+                            <td>客户地址</td>
+                            <td>送牛奶数量</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="water : ${pageInfo.list}" style="text-align: center">
+
+                            <td th:text="${water.workerName}"></td>
+                            <td>
+                                <!--没有上传图像显示系统默认的图像
+                                  th:if="${#strings.isEmpty(worker.workerImage)}"
+                                  条件成立：表示没有上传图像，显示默认的图像
+                                -->
+                                <img class="myWorkerImage"
+                                     th:if="${#strings.isEmpty(water.workerImage)}"
+                                     src="/img/lxc.png" />
+                                <!--条件成立：表示用户上传了图片，显示在服务器上显示上传图片-->
+                                <img class="myWorkerImage"
+                                     th:if="${not #strings.isEmpty(water.workerImage)}"
+                                     th:src="'http://localhost:9991/'+${water.workerImage}"/>
+                            </td>
+                            <td th:text="${water.custDetails}"></td>
+                            <td th:text="${water.custAddress}"></td>
+                            <td th:text="${water.sendWaterCount}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!--显示分页信息部分代码-->
+            <div class="modal-footer no-margin-top">
+                <div class="col-md-6">
+                    <strong>
+                        当前第<span style="color: red"> [[${pageInfo.pageNum}]]</span>页
+                        共 <span style="color: red">[[${pageInfo.pages}]] </span> 页
+                        一共<span style="color: red"> [[${pageInfo.total}]]</span> 条记录
+                    </strong>
+                </div>
+                <ul class="pagination pull-right no-margin">
+
+                    <!--hasPreviousPage 是否有前一页-->
+                    <li th:if="${pageInfo.hasPreviousPage}">
+                        <a th:href="'/stat/statWaterDetails?pageNum=1'">首页</a>
+                    </li>
+
+                    <li class="prev" th:if="${pageInfo.hasPreviousPage}">
+                        <!--prePage:前一页-->
+                        <a th:href="'/stat/statWaterDetails?pageNum='+${pageInfo.prePage}">
+                            <i class="ace-icon fa fa-angle-double-left"></i>
+                            <span>&laquo;</span>
+                        </a>
+                    </li>
+
+                    <!--遍历条数-->
+                    <!--navigatepageNums：所有导航页号-->
+                    <li th:each="nav:${pageInfo.navigatepageNums}">
+                        <a th:href="'/stat/statWaterDetails?pageNum='+${nav}" th:text="${nav}" th:if="${nav != pageInfo.pageNum}"></a>
+                        <span style="font-weight: bold;background: #6faed9;" th:if="${nav == pageInfo.pageNum}" th:text="${nav}" ></span>
+                    </li>
+
+                    <!--hasNextPage：是否有下一页-->
+                    <li class="next" th:if="${pageInfo.hasNextPage}">
+                        <a th:href="'/stat/statWaterDetails?pageNum='+${pageInfo.nextPage}">
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="'/stat/statWaterDetails?pageNum='+${pageInfo.pages}">尾页</a>
+                    </li>
+                </ul>
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+
+</div>
+
+</body>
+</html>

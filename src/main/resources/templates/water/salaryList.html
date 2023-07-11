@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> 送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar
+    客户列表页面使用th:replace属性替换成主菜单的侧边栏，让代码能够复用
+    th:replace="waterMainMenu::sidebar"
+    waterMainMenu表示主菜单页面的文件名称
+    sidebar表示主菜单页面的片段名称
+    -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+        <!--
+th:replace="waterMainMenu::navbar"表示将nav标签里面所有的内容替换为主页面的navbar片段
+        -->
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar">
+
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <a class="btn btn-danger" th:href="@{/salary/searchSalay}">查询所有</a>
+                    <a class="btn btn-warning" th:href="@{/salary/IsNullWorker}" style="margin: 0px 17px 0px 0px">查询从来没有送过牛奶</a>
+                    <a class="btn btn-success" th:href="@{/jump}" style="margin-left: -1%">回到首页</a>
+                    <div class="col-md-8" style="margin-left: 75%">
+                        <form class="form-inline" th:action="@{/salary/searchCalcSalay}">
+                            <a style="margin-left: 5%"></a>
+                            <input type="date"
+                                   class="form-control"
+                                   th:value="${startDate}"
+                                   th:name="startDate" placeholder="请输入开始时间" required/>
+                            <input type="date"
+                                   class="form-control"
+                                   th:value="${endDate}"
+                                   th:name="endDate" placeholder="请输入结束时间" />
+                            <input type="submit" class="btn btn-primary" name="search" value="搜索"/>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-12" style="margin-top: 15px">
+                    <table class="table table-bordered table-hover" border="1px">
+                        <thead>
+                        <tr class="success" style="text-align: center">
+                            <td>送牛奶工</td>
+                            <td>基本工资</td>
+                            <td>每桶提成</td>
+                            <td>送牛奶数量</td>
+                            <td>实发工资</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- 渲染后客户列表
+                        ${custList}是Controller渲染到前端列表的数据，是一个集合
+                        cust是集合里面的一个对象
+                        th:each遍历集合里面所有的对象
+                        ${cust.custName}对象名.属性名来显示数据。但是程序运行的时候会调用属性对应的get方法
+                        th:表示Thymeleaf模板对象
+                        注意：后端渲染到前端的动态数据全部包裹在${}里面
+                        -->
+                        <tr th:each="salary : ${pageInfo.list}" style="text-align: center">
+                            <td th:text="${salary.workerName}"></td>
+                            <td th:text="${salary.workerSalary}"></td>
+                            <td th:text="${salary.workerMoney}"></td>
+                            <td th:text="${salary.sendWaterCount}"></td>
+                            <td th:text="${salary.finalSalary}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--显示分页信息部分代码-->
+    <div class="modal-footer no-margin-top">
+        <div class="col-md-6">
+            <strong>
+                当前第<span style="color: red"> [[${pageInfo.pageNum}]]</span>页
+                共 <span style="color: red">[[${pageInfo.pages}]] </span> 页
+                一共<span style="color: red"> [[${pageInfo.total}]]</span> 条记录
+            </strong>
+        </div>
+        <ul class="pagination pull-right no-margin">
+
+            <!--hasPreviousPage 是否有前一页-->
+            <li th:if="${pageInfo.hasPreviousPage}">
+                <a th:href="'/salary/searchCalcSalay?pageNum=1'">首页</a>
+            </li>
+
+            <li class="prev" th:if="${pageInfo.hasPreviousPage}">
+                <!--prePage:前一页-->
+                <a th:href="'/salary/searchCalcSalay?pageNum='+${pageInfo.prePage}">
+                    <i class="ace-icon fa fa-angle-double-left"></i>
+                    <span>&laquo;</span>
+                </a>
+            </li>
+
+            <!--遍历条数-->
+            <!--navigatepageNums：所有导航页号-->
+            <li th:each="nav:${pageInfo.navigatepageNums}">
+                <a th:href="'/salary/searchCalcSalay?pageNum='+${nav}" th:text="${nav}" th:if="${nav != pageInfo.pageNum}"></a>
+                <span style="font-weight: bold;background: #6faed9;" th:if="${nav == pageInfo.pageNum}" th:text="${nav}" ></span>
+            </li>
+
+            <!--hasNextPage：是否有下一页-->
+            <li class="next" th:if="${pageInfo.hasNextPage}">
+                <a th:href="'/salary/searchCalcSalay?pageNum='+${pageInfo.nextPage}">
+                    <i class="ace-icon fa fa-angle-double-right"></i>
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="'/salary/searchCalcSalay?pageNum='+${pageInfo.pages}">尾页</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>

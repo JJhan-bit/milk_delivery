@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* css 代码  */
+  </style>
+  <script src="https://code.hcharts.cn/highcharts/highcharts.js"></script>
+  <script src="https://code.hcharts.cn/highcharts/highcharts-3d.js"></script>
+  <script src="https://code.hcharts.cn/highcharts/modules/exporting.js"></script>
+  <script src="https://code.hcharts.cn/plugins/zh_cn.js"></script>
+
+  <style>
+    /* css 代码  */
+  </style>
+  <script src="https://code.hcharts.cn/highcharts/highcharts.js"></script>
+  <script src="https://code.hcharts.cn/highcharts/highcharts-more.js"></script>
+  <script src="https://code.hcharts.cn/highcharts/modules/exporting.js"></script>
+  <script src="https://code.hcharts.cn/plugins/zh_cn.js"></script>
+
+  <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+  <script type="text/javascript" src="js/login.js"></script>
+
+  <!--axios-->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<title>送牛奶后台管理系统</title>
+
+
+<!--Bootstrap固定框架-->
+<link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+<link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+<!--图标库-->
+<link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+<!--核心样式-->
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" href="/css/login.css" />
+
+<style>
+
+  .buttonClass1 {
+    font-size:15px;
+    font-family:Arial;
+    width:94px;
+    height:33px;
+    border-width:1px;
+    color:#fff;
+    border-color:#18ab29;
+    border-top-left-radius:28px;
+    border-top-right-radius:28px;
+    border-bottom-left-radius:28px;
+    border-bottom-right-radius:28px;
+    text-shadow: 1px 1px 0px #2f6627;
+    background:#44c767;
+  }
+
+  .buttonClass1:hover {
+    background: #5cbf2a
+  }
+  .buttonClass2 {
+    font-size:15px;
+    font-family:Arial;
+    width:94px;
+    height:33px;
+    border-width:1px;
+    color:#fff;
+    border-color:#18ab29;
+    border-top-left-radius:28px;
+    border-top-right-radius:28px;
+    border-bottom-left-radius:28px;
+    border-bottom-right-radius:28px;
+    text-shadow: 1px 1px 0px #2f6627;
+    background:#ff770b;
+  }
+
+  .buttonClass2:hover {
+    background: #5cbf2a
+  }
+  .buttonClass3 {
+    font-size:15px;
+    font-family:Arial;
+    width:94px;
+    height:33px;
+    border-width:1px;
+    color:#fff;
+    border-color:#18ab29;
+    border-top-left-radius:28px;
+    border-top-right-radius:28px;
+    border-bottom-left-radius:28px;
+    border-bottom-right-radius:28px;
+    text-shadow: 1px 1px 0px #2f6627;
+    background:#25afbd;
+  }
+
+  .buttonClass3:hover {
+    background: #5cbf2a
+  }
+</style>
+
+</head>
+<body>
+
+<div id="viewport">
+
+  <!-- Sidebar 侧边栏 -->
+  <div id="sidebar" th:fragment="sidebar">
+    <header id="header" >
+      <div style="color: #72afd3;text-align:left" >
+        <!--<img src="D://milk(1).jpg" height="20" width="20" alt=""/>-->
+        <span id="span">后台管理系统</span>
+      </div>
+    </header>
+    <ul class="nav">
+      <li>
+        <a th:href="@{/cust/listCust}">
+          <i class="zmdi zmdi-view-dashboard"></i> 客户管理
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/worker/workerList}">
+          <i class="zmdi zmdi-link"></i> 送牛奶工管理
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/history/listHis}">
+          <i class="zmdi zmdi-view-list"></i> 送牛奶历史管理
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/salary/searchCalcSalay}">
+          <i class="zmdi zmdi-view-toc"></i> 计算工资
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/stat/statWaterDetails}">
+          <i class="zmdi zmdi-view-web"></i> 统计送牛奶数量
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/pwd}">
+          <i class="zmdi zmdi-view-week"></i> 修改密码
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+    <nav class="navbar navbar-default" th:fragment="navbar">
+      <div class="container-fluid" >
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="#"><i class="zmdi zmdi-notifications text-danger"></i>
+            </a>
+          </li>
+          <li>
+            <a href="#">当前用户：[[${session.currentUser}]]</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid">
+
+    </div>
+  </div>
+
+  <div id="container" style="height: 400px"></div>
+  <script>
+    var workerName=new  Array();
+    var senWaterCount=new  Array();
+    axios({
+      method:"get",
+      url:"/main/mainMenu"
+    }).then(function (rep){
+      for (let i = 0; i < rep.data.length; i++) {
+        const repElement = rep.data[i];
+        workerName[i]=repElement.workerName
+        senWaterCount[i]=repElement.sendWaterCount
+        // JS 代码
+        var chart = Highcharts.chart('container', {
+          chart: {
+            type: 'pie',
+            options3d: {
+              enabled: true,
+              alpha: 45
+            }
+          },
+          title: {
+            text: '不同员工送牛奶数量对比'
+          },
+          subtitle: {
+            text: '送水工的3D环形图'
+          },
+          plotOptions: {
+            pie: {
+              innerSize: 100,
+              depth: 45
+            }
+          },
+          series: [{
+            name: '货物金额',
+            data: [
+              [workerName[0],senWaterCount[0]],
+              [workerName[1],senWaterCount[1]],
+              [workerName[2],senWaterCount[2]],
+              [workerName[3],senWaterCount[3]],
+              [workerName[4],senWaterCount[4]],
+              [workerName[5],senWaterCount[5]],
+              [workerName[6],senWaterCount[6]],
+              [workerName[7],senWaterCount[7]],
+              [workerName[8],senWaterCount[8]],
+              [workerName[9],senWaterCount[9]],
+              [workerName[10],senWaterCount[10]],
+              [workerName[11],senWaterCount[11]],
+            ]
+          }]
+        });
+      }
+    })
+
+  </script>
+
+  <!--柱状图-->
+  <div id="container1"></div>
+  <div id="wrapper">
+    <button class="buttonClass1" id="plain">普通</button>
+    <button class="buttonClass2" id="inverted">反转</button>
+    <button class="buttonClass3" id="polar">极地图</button>
+  </div>
+  <script>
+    var workerName=new  Array();
+    var senWaterCount=new  Array();
+    axios({
+      method:"get",
+      url:"/main/mainMenu"
+    }).then(function (rep){
+      for (let i = 0; i < rep.data.length; i++) {
+        const repElement = rep.data[i];
+        workerName[i]=repElement.workerName
+        senWaterCount[i]=repElement.sendWaterCount
+        //console.log(workerName[i])
+
+        // JS 代码
+        var chart = Highcharts.chart('container1', {
+          title: {
+            text: '送牛奶数量排行榜'
+          },
+          subtitle: {
+            text: '普通的'
+          },
+          xAxis: {
+            categories: workerName
+          },
+          series: [{
+            type: 'column',
+            colorByPoint: true,
+            data: senWaterCount,
+            showInLegend: false
+          }]
+        });
+        // 给 wrapper 添加点击事件
+        Highcharts.addEvent(document.getElementById('wrapper'), 'click', function(e) {
+          var target = e.target,
+                  button = null;
+          if(target.tagName === 'BUTTON') { // 判断点的是否是 button
+            button = target.id;
+            switch(button) {
+              case 'plain':
+                chart.update({
+                  chart: {
+                    inverted: false,
+                    polar: false
+                  },
+                  subtitle: {
+                    text: '普通的'
+                  }
+                });
+                break;
+              case 'inverted':
+                chart.update({
+                  chart: {
+                    inverted: true,
+                    polar: false
+                  },
+                  subtitle: {
+                    text: '反转'
+                  }
+                });
+                break;
+              case 'polar':
+                chart.update({
+                  chart: {
+                    inverted: false,
+                    polar: true
+                  },
+                  subtitle: {
+                    text: '极地图'
+                  }
+                });
+                break;
+            }
+          }
+        });
+      }
+    })
+
+
+
+  </script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="css/login.css" />
+
+
+
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+
+    <div class="body">
+        <div class="body_count">
+
+
+            <div class="login_count1">
+                <div class="login_count_a">
+                    <div id="all">
+                        <div>
+                            <ul>
+                                <li>
+                                    <span style="width: 20px;height: 20px;"  class="zmdi zmdi-notifications text-danger"></span>
+                                    <span style="font-size: 20px;color: red" href="#">当前用户：[[${session.currentUser}]]</span>
+                                </li>
+                            </ul>
+                        </div>
+
+
+                        <ul id="card">
+                            <form th:action="@{/pwdUser}" th:method="post">
+                                <li class="active">
+                                    <!--输入框-->
+                                    <div class="login_bot_count">
+                                        <img src="img/tubiao-06.png" alt="" />
+                                        <input type="password" name="userPwd"  placeholder="请输入旧密码"/>
+                                    </div>
+
+                                    <div class="login_bot_count">
+                                        <img src="img/tubiao-06.png" alt="" />
+                                        <input type="password" name="newPwd"  placeholder="请输入新密码"/>
+                                    </div>
+                                    <!--修改按钮-->
+                                    <button class="login_button" type="submit">提交</button>
+                                </li>
+                                <br>
+                            </form>
+                            <p><a href="https://www.cmd5.com/">忘记加密前的密码</a></p>
+                            <br>
+                            <p style="color:red;text-align: center"
+                               th:if="${not #strings.isEmpty(loginFail)}"
+                               th:text="${loginFail}">
+                            </p>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+
+
+
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>送牛奶后台管理系统 </title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+
+<div id="viewport">
+    <!-- Sidebar -->
+    <!--th:replace此时表示将div标签里面的内容替换为waterMainMenu页面的sidebar片段-->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar"></div>
+
+    <!-- Content -->
+    <div id="content">
+        <!--th:replace此时表示将nav标签里面的内容替换为waterMainMenu页面的navbar片段-->
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar"></nav>
+
+        <div class="col-md-4">
+            <a class="btn btn-success" th:href="@{/cust/preSaveCust}">添加客户信息</a>
+            <a class="btn btn-info" th:href="@{/jump}">回到首页</a>
+        </div>
+
+        <div class="col-md-8" style="margin-left: 63%">
+            <form class="form-inline">
+                <label for="custName">客户名称：</label>
+                <input type="text" id="custName" class="form-control" th:name="custName" placeholder="请输入客户名称"/>
+                <label for="custMobile">手机号：</label>
+                <input type="text" id="custMobile"  class="form-control" th:name="custMobile" placeholder="请输入手机号"/>
+                <input type="submit" class="btn btn-primary" name="search" value="搜索"/>
+            </form>
+        </div>
+
+        <!--表格-->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12" style="margin-top: 15px">
+                    <table class="table table-bordered table-hover" border="1px">
+                        <thead>
+                        <tr class="success" style="text-align: center">
+                            <td>客户编号</td>
+                            <td>客户名称</td>
+                            <td>客户地址</td>
+                            <td>联系方式</td>
+                            <td>牛奶票数量</td>
+                            <td>操作</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- 渲染后客户列表-->
+                        <tr th:each="cust : ${pageInfo.list}" style="text-align: center">
+                            <td th:text="${cust.cid}"/>
+                            <td th:text="${cust.custName}"/>
+                            <td th:text="${cust.custAddress}"/>
+                            <td th:text="${cust.custMobile}"/>
+                            <td th:text="${cust.custTicket}"/>
+                            <td>
+                                <a class="btn btn-danger" th:href="@{'/cust/delCust/'+${cust.cid}}">删除</a>
+                                <a class="btn btn-success" th:href="@{'/cust/preUpdateCust/'+${cust.cid}}">修改</a>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!--显示分页信息部分代码-->
+        <div class="modal-footer no-margin-top">
+            <div class="col-md-6">
+                <strong>
+                    当前第<span style="color: red"> [[${pageInfo.pageNum}]]</span>页
+                    共 <span style="color: red">[[${pageInfo.pages}]] </span> 页
+                    一共<span style="color: red"> [[${pageInfo.total}]]</span> 条记录
+                </strong>
+            </div>
+            <ul class="pagination pull-right no-margin">
+
+                <!--hasPreviousPage 是否有前一页-->
+                <li th:if="${pageInfo.hasPreviousPage}">
+                    <a th:href="'/cust/listCust?pageNum=1'">首页</a>
+                </li>
+
+                <li class="prev" th:if="${pageInfo.hasPreviousPage}">
+                    <!--prePage:前一页-->
+                    <a th:href="'/cust/listCust?pageNum='+${pageInfo.prePage}">
+                        <i class="ace-icon fa fa-angle-double-left"></i>
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+
+                <!--遍历条数-->
+                <!--navigatepageNums：所有导航页号-->
+                <li th:each="nav:${pageInfo.navigatepageNums}">
+                    <a th:href="'/cust/listCust?pageNum='+${nav}" th:text="${nav}" th:if="${nav != pageInfo.pageNum}"></a>
+                    <span style="font-weight: bold;background: #6faed9;" th:if="${nav == pageInfo.pageNum}" th:text="${nav}" ></span>
+                </li>
+
+                <!--hasNextPage：是否有下一页-->
+                <li class="next" th:if="${pageInfo.hasNextPage}">
+                    <a th:href="'/cust/listCust?pageNum='+${pageInfo.nextPage}">
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="'/cust/listCust?pageNum='+${pageInfo.pages}">尾页</a>
+                </li>
+            </ul>
+        </div>
+
+
+
+    </div>
+</div>
+</div>
+
+</body>
+</html>

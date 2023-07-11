@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <title>送牛奶后台管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/login1.css}" type='text/css'/>
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $('#password').focus(function(){
+                // 密码框获得焦点，追加样式.password
+                $('#owl').addClass('password');
+            }).blur(function(){
+                // 密码框失去焦点，移除样式.password
+                $('#owl').removeClass('password');
+            })
+        })
+    </script>
+</head>
+
+<body>
+<form th:action="@{/login}" th:method="post">
+    <div class="login-box">
+        <div class="owl" id="owl">
+            <div class="hand"></div>
+            <div class="hand hand-r"></div>
+            <div class="arms">
+                <div class="arm"></div>
+                <div class="arm arm-r"></div>
+            </div>
+        </div>
+        <div class="input-box">
+            <input type="text" placeholder="用户名" name="userName">
+            <input type="password" placeholder="密码" id="password" name="userPwd" >
+            <button type="submit" style="font-size: 18px">登录</button>
+        </div>
+        <p style="color:red"
+           th:if="${not #strings.isEmpty(msg3)}"
+           th:text="${msg3}">
+            <!--这个msg既可以是model里的，也可以是session里的-->
+        </p>
+        <p style="color:red"
+           th:if="${not #strings.isEmpty(msg1)}"
+           th:text="${msg1}">
+            <!--这个msg既可以是model里的，也可以是session里的-->
+        </p>
+        <p style="color:red"
+           th:if="${not #strings.isEmpty(msg2)}"
+           th:text="${msg2}">
+            <!--这个msg既可以是model里的，也可以是session里的-->
+        </p>
+    </div>
+</form>
+
+</body>
+
+</html>

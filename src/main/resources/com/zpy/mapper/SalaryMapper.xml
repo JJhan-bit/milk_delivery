@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!--记住 我的电脑这里只能是http才能出来小鸟-->
+<mapper namespace="com.zpy.mapper.SalaryMapper">
+
+    <select id="list" resultType="com.zpy.pojo.Salary">
+        SELECT  w.worker_name,w.worker_salary,w.worker_money,
+       IFNULL(SUM(h.send_water_count),0) as send_water_count,
+       IFNULL(SUM(w.worker_money*h.send_water_count)+w.worker_salary , w.worker_salary) as final_salary
+        FROM
+       tb_worker w LEFT JOIN tb_history h on w.wid=h.worker_id
+       <where>
+           <if test="startDate!=null and startDate!='' and endDate!=null and endDate != '' ">
+           and h.send_water_time between #{startDate} and #{endDate}
+           </if>
+       </where>
+       GROUP BY w.wid
+        ORDER BY final_salary DESC
+    </select>
+
+    <select id="listAll" resultType="com.zpy.pojo.Salary">
+        SELECT  w.worker_name,w.worker_salary,w.worker_money,
+        IFNULL(SUM(h.send_water_count),0) as send_water_count,
+        IFNULL(SUM(w.worker_money*h.send_water_count)+w.worker_salary , w.worker_salary) as final_salary
+        FROM
+        tb_worker w LEFT JOIN tb_history h on w.wid=h.worker_id
+        GROUP BY w.wid
+        ORDER BY final_salary DESC
+    </select>
+
+    <select id="listNull" resultType="com.zpy.pojo.Salary">
+        SELECT  w.worker_name,w.worker_salary,w.worker_money,
+        IFNULL(SUM(h.send_water_count),0) as send_water_count,
+        IFNULL(SUM(w.worker_money*h.send_water_count)+w.worker_salary , w.worker_salary) as final_salary
+        FROM
+        tb_worker w LEFT JOIN tb_history h on w.wid=h.worker_id
+        where h.worker_id is null
+        GROUP BY w.wid
+        ORDER BY final_salary DESC
+    </select>
+</mapper>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> 送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+
+    <style>
+        .myWorkerImage{
+            width:40px;
+            height:40px;
+        }
+        #add,#sub{
+            font-size:20px;
+            color:red;
+            font-weight: bold;
+        }
+    </style>
+
+    <!--下边是ajax局部刷新 学会了可以使侧边栏也不刷新-->
+    <script>
+        /*整个加工资和减工资的逻辑：先拿到前端显示的工资是多少，在前端的js里进行加或减，在把修改后的工资再展示到前端，前边一顿操作只是在前端展示了一下，刷新之后又恢复原样，
+        * 因为数据库没有改变，之后用ajax发请求，传的参数就是data里的进行加或减之后的数据，把新的数据存到数据库，所以，加减操作在前端完成，后端只做一次修改操作即可*/
+        $(function () {
+            // + 绑定点击事件
+            $("span[id=add]").click(function () {
+                //获取id
+                var workerId = $(this).attr("class");
+                var workerSalary = $(this).next().text();
+                //计算调整后的工资
+                workerSalary = parseInt(workerSalary);
+                workerSalary += 500;
+                $(this).next().text(workerSalary);
+                $.ajax({
+                    url:'/worker/addSalary',
+                    data:{
+                        wid:workerId,
+                        workerSalary:workerSalary
+                    },
+                    method:"POST",
+                    success:function (data) {
+                        if(data == "OK"){
+                            alert("调整工资成功");
+                        }else {
+                            alert("调整工资失败");
+                        }
+                    }
+                })
+            })
+        })
+
+        $(function () {
+            // - 绑定点击事件
+            $("span[id=sub]").click(function () {
+                //获取id
+                var workerId = $(this).attr("class");
+                var workerSalary = $(this).prev().text();
+                //计算调整后的工资
+                workerSalary = parseInt(workerSalary);
+                workerSalary -= 500;
+                $(this).prev().text(workerSalary);
+                $.ajax({
+                    url:'/worker/addSalary',
+                    data:{
+                        wid:workerId,
+                        workerSalary:workerSalary
+                    },
+                    method:"POST",
+                    success:function (data) {
+                        if(data == "OK"){
+                            alert("调整工资成功");
+                        }else {
+                            alert("调整工资失败");
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar
+    客户列表页面使用th:replace属性替换成主菜单的侧边栏，让代码能够复用
+    th:replace="waterMainMenu::sidebar"
+    waterMainMenu表示主菜单页面的文件名称
+    sidebar表示主菜单页面的片段名称
+    -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+        <!--
+th:replace="waterMainMenu::navbar"表示将nav标签里面所有的内容替换为主页面的navbar片段
+        -->
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar">
+
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <!--添加按钮-->
+                        <a class="btn btn-success"
+                           th:href="@{/worker/preSaveWorker}">添加送牛奶工信息</a>
+                        <a class="btn btn-info" th:href="@{/jump}">回到首页</a>
+                    </div>
+                </div>
+
+                <div class="col-md-8" style="margin-left: 77.5%">
+                    <form class="form-inline">
+                        <label for="workerName">送牛奶工名称：</label>
+                        <input type="text" id="workerName" th:value="${workerName}" class="form-control" th:name="workerName" placeholder="请输入送牛奶工名称"/>
+                        <input type="submit" class="btn btn-primary" name="search" value="搜索"/>
+                    </form>
+                </div>
+
+                <!--表格-->
+                <div class="col-md-12" style="margin-top: 15px">
+                    <table class="table table-bordered table-hover" border="1px">
+                        <thead>
+                        <tr class="success" style="text-align: center">
+                            <td>送牛奶工编号</td>
+                            <td>送牛奶工名称</td>
+                            <td>送牛奶工底薪</td>
+                            <td>送牛奶工提成</td>
+                            <td>送牛奶工照片</td>
+                            <td>操作</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="worker : ${pageInfo.list}" style="text-align: center">
+                            <td th:text="${worker.wid}"></td>
+                            <td th:text="${worker.workerName}"></td>
+                            <td>
+                                <span id="add" th:class="${worker.wid}">+</span>
+                                <span id="salary" th:text="${worker.workerSalary}"></span>
+                                <span id="sub" th:class="${worker.wid}">-</span>
+                            </td>
+                            <td th:text="${worker.workerMoney}"></td>
+
+                            <td>
+                                <!--没有上传图像显示系统默认的图像
+                                  th:if="${#strings.isEmpty(worker.workerImage)}"
+                                  条件成立：表示没有上传图像，显示默认的图像
+                                -->
+                                <img class="myWorkerImage"
+                                     th:if="${#strings.isEmpty(worker.workerImage)}"
+                                     src="/img/lxc.png"/>
+                                <!--条件成立：表示用户上传了图片，显示在服务器上显示上传图片-->
+                                <img class="myWorkerImage"
+                                     th:if="${not #strings.isEmpty(worker.workerImage)}"
+                                     th:src="'http://localhost:9991/'+${worker.workerImage}"/>
+                            </td>
+                            <td>
+                                <a class="btn btn-warning"
+                                   th:href="@{'/worker/preUpdateWorker/'+${worker.wid}}">修改</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <!--显示分页信息部分代码-->
+        <div class="modal-footer no-margin-top">
+            <div class="col-md-6">
+                <strong>
+                    当前第<span style="color: red"> [[${pageInfo.pageNum}]]</span>页
+                    共 <span style="color: red">[[${pageInfo.pages}]] </span> 页
+                    一共<span style="color: red"> [[${pageInfo.total}]]</span> 条记录
+                </strong>
+            </div>
+            <ul class="pagination pull-right no-margin">
+
+                <!--hasPreviousPage 是否有前一页-->
+                <li th:if="${pageInfo.hasPreviousPage}">
+                    <a th:href="'/worker/workerList?pageNum=1'">首页</a>
+                </li>
+
+                <li class="prev" th:if="${pageInfo.hasPreviousPage}">
+                    <!--prePage:前一页-->
+                    <a th:href="'/worker/workerList?pageNum='+${pageInfo.prePage}">
+                        <i class="ace-icon fa fa-angle-double-left"></i>
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+
+                <!--遍历条数-->
+                <!--navigatepageNums：所有导航页号-->
+                <li th:each="nav:${pageInfo.navigatepageNums}">
+                    <a th:href="'/worker/workerList?pageNum='+${nav}" th:text="${nav}" th:if="${nav != pageInfo.pageNum}"></a>
+                    <span style="font-weight: bold;background: #6faed9;" th:if="${nav == pageInfo.pageNum}" th:text="${nav}" ></span>
+                </li>
+
+                <!--hasNextPage：是否有下一页-->
+                <li class="next" th:if="${pageInfo.hasNextPage}">
+                    <a th:href="'/worker/workerList?pageNum='+${pageInfo.nextPage}">
+                        <i class="ace-icon fa fa-angle-double-right"></i>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="'/worker/workerList?pageNum='+${pageInfo.pages}">尾页</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

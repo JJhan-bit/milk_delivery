@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zpy.mapper.HistoryMapper">
+
+    <resultMap id="historyMap" type="com.zpy.pojo.History">
+        <id column="hid" property="hid"/>
+        <result column="send_water_time" property="sendWaterTime"/>
+        <result column="send_water_count" property="sendWaterCount"/>
+        <association property="customer">
+            <id column="cid" property="cid"/>
+            <result column="cust_name" property="custName"/>
+        </association>
+
+        <association property="worker">
+            <id column="wid" property="wid"/>
+            <result column="worker_name" property="workerName"/>
+        </association>
+    </resultMap>
+
+
+
+    <select id="listHistory" resultType="com.zpy.pojo.History" resultMap="historyMap">
+        select h.hid, w.worker_name, c.cust_name, h.send_water_time, h.send_water_count
+        from tb_history h,tb_customer c,tb_worker w
+        <where>
+            AND h.cust_id=c.cid AND h.worker_id=w.wid
+            <if test="workerName != null and workerName!='' ">
+             and w.worker_name like  concat('%',#{workerName},'%')
+            </if>
+            <if test="sendWaterTime != null and sendWaterTime !='' ">
+                and h.send_water_time like  concat('%',#{sendWaterTime},'%')
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="addHis">
+        insert  into tb_history (cust_id,worker_id,send_water_time,send_water_count)
+        values (#{customer.cid},#{worker.wid},#{sendWaterTime},#{sendWaterCount})
+    </insert>
+
+    <delete id="deleteHis">
+        delete from tb_history
+        where hid in
+        <foreach collection="ids" item="hid" open="(" close=")" separator=",">
+            #{hid}
+        </foreach>
+    </delete>
+
+    <select id="getHisById" resultType="com.zpy.pojo.History" resultMap="historyMap">
+        select h.hid, w.worker_name, c.cust_name, h.send_water_time, h.send_water_count
+        from tb_history h,tb_customer c,tb_worker w where h.cust_id=c.cid and h.worker_id=w.wid and  hid=#{id}
+    </select>
+
+    <update id="updateHis">
+        update tb_history set cust_id=#{customer.cid},worker_id=#{worker.wid},send_water_time=#{sendWaterTime},send_water_count=#{sendWaterCount}
+        where  hid=#{hid}
+    </update>
+</mapper>

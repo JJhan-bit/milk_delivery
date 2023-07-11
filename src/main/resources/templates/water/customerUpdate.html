@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> 送牛奶后台管理系统</title>
+    <link rel="icon" href="https://jscdn.com.cn/highcharts/images/favicon.ico">
+
+    <!--Bootstrap固定框架-->
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}">
+    <link rel='stylesheet' th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap-theme.css}">
+    <!--图标库-->
+    <link rel='stylesheet' th:href='@{/css/material-design-iconic-font.min.css}'>
+    <!--核心样式-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+
+<div id="viewport">
+
+    <!-- Sidebar -->
+    <div id="sidebar" th:replace="waterMainMenu::sidebar">
+
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+        <nav class="navbar navbar-default" th:replace="waterMainMenu::navbar">
+        </nav>
+
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-horizontal" method="post" th:action="@{/cust/updateCust}" >
+                        <!--
+                         隐藏输入框，将后端掺入到前端Customer对象cid属性设为隐藏
+                        -->
+                        <input type="hidden" th:value="${customer.cid}" name="cid"/>
+
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">客户名称</label>
+                            <div class="col-sm-5">
+                                <input type="text" th:value="${customer.custName}" class="form-control" name="custName"  placeholder="客户名称">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">客户地址</label>
+                            <div class="col-sm-5">
+                                <input type="text" th:value="${customer.custAddress}" class="form-control" name="custAddress"  placeholder="客户地址">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">联系方式</label>
+                            <div class="col-sm-5">
+                                <input type="text" th:value="${customer.custMobile}" class="form-control" name="custMobile"  placeholder="联系方式">
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label  class="col-sm-2 control-label">牛奶票数量</label>
+                            <div class="col-sm-5">
+                                <input type="text" th:value="${customer.custTicket}" class="form-control" name="custTicket"  placeholder="牛奶票数量">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-5">
+                                <input type="submit" class="btn btn-primary" name="submit"  value="提交">
+                                &nbsp;&nbsp;
+                                <input type="reset" class="btn btn-warning" name="reset"  value="取消">
+                                <a class="btn btn-info" th:href="@{/cust/listCust}">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

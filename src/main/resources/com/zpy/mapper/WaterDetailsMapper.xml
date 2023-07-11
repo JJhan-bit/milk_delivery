@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!--记住 我的电脑这里只能是http才能出来小鸟-->
+<mapper namespace="com.zpy.mapper.WaterDetailsMapper">
+    <select id="list" resultType="com.zpy.pojo.WaterDetails">
+      /*  IFNULL(GROUP_CONCAT(sum(h.send_water_count)),0)  as*/
+SELECT  w.worker_name,w.worker_image,
+IFNULL(GROUP_CONCAT(cust_name),"/") as cust_details,c.cust_address,
+        sum(h.send_water_count)  as send_water_count FROM
+tb_worker w LEFT JOIN tb_history h on w.wid=h.worker_id
+LEFT JOIN tb_customer c on c.cid=h.cust_id
+<where>
+    <if test="workerName != null and workerName != '' ">
+        and w.worker_name like concat('%',#{workerName},'%')
+    </if>
+</where>
+GROUP BY w.wid
+order by send_water_count desc
+    </select>
+</mapper>
